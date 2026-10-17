@@ -1,0 +1,360 @@
+/* =========================================================
+   우리 반 1인 1역할 - 스타일
+   초등학생 눈높이의 파스텔톤 디자인 + A4 인쇄 스타일
+   ========================================================= */
+
+/* ---------- 1. 색상·기본값 ---------- */
+:root {
+  --bg: #fff8f2;
+  --surface: #ffffff;
+  --text: #4a4458;
+  --text-soft: #8a8299;
+  --line: #f0e6ef;
+
+  --primary: #ff8fab;
+  --primary-dark: #f2709a;
+  --secondary: #a0c4ff;
+  --secondary-dark: #82adf5;
+  --sheet: #b9fbc0;
+  --sheet-dark: #8fe39a;
+  --warn-bg: #fff1c1;
+  --warn-text: #9a6b00;
+
+  /* 카드 파스텔 색상 */
+  --pink: #ffd6e0;
+  --peach: #ffe5cc;
+  --lemon: #fff6bf;
+  --mint: #d4f5e0;
+  --sky: #d6ecff;
+  --lavender: #e6dcff;
+
+  --radius: 20px;
+  --shadow: 0 6px 18px rgba(170, 130, 160, 0.15);
+
+  --font-title: 'Jua', 'Gowun Dodum', sans-serif;
+  --font-body: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 10% 10%, #ffe3ec 0, transparent 30%),
+    radial-gradient(circle at 90% 20%, #e3f0ff 0, transparent 30%),
+    radial-gradient(circle at 50% 100%, #e6fbe9 0, transparent 35%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+h1, h2 { font-family: var(--font-title); font-weight: 400; margin: 0; }
+
+/* ---------- 2. 헤더 ---------- */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 8px;
+}
+
+.title-wrap { display: flex; align-items: center; gap: 14px; }
+
+.logo {
+  font-size: 2.6rem;
+  display: inline-block;
+  animation: bounce 2.4s ease-in-out infinite;
+}
+
+.app-header h1 { font-size: 2rem; color: var(--primary-dark); }
+.subtitle { margin: 2px 0 0; color: var(--text-soft); }
+
+.sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- 3. 버튼 ---------- */
+.btn {
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(1px); box-shadow: none; }
+.btn:focus-visible { outline: 3px solid var(--secondary-dark); outline-offset: 2px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+
+.btn-secondary { background: var(--secondary); }
+.btn-secondary:hover { background: var(--secondary-dark); }
+
+.btn-sheet { background: var(--sheet); }
+.btn-sheet:hover { background: var(--sheet-dark); }
+
+.btn-ghost { background: #fff; border: 2px dashed var(--line); box-shadow: none; }
+.btn-ghost:hover { border-color: var(--primary); }
+
+.btn-big { font-size: 1.4rem; padding: 14px 34px; }
+
+/* ---------- 4. 레이아웃 ---------- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 16px 48px;
+  display: grid;
+  gap: 24px;
+}
+
+.settings,
+.result {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+/* ---------- 5. 설정 영역 ---------- */
+.info-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 220px; font-family: var(--font-title); }
+
+.field input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  color: var(--text);
+}
+.field input:focus { outline: none; border-color: var(--primary); }
+
+.lists { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.list-box { border-radius: 18px; padding: 16px; }
+.list-students { background: #fff2f6; }
+.list-roles { background: #f1f7ff; }
+
+.list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.list-head h2 { font-size: 1.25rem; }
+
+.badge {
+  font-family: var(--font-title);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.95rem;
+}
+
+textarea {
+  width: 100%;
+  height: 260px;
+  resize: vertical;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+}
+textarea:focus { outline: none; border-color: var(--primary); }
+
+.hint { margin: 8px 2px 0; font-size: 0.88rem; color: var(--text-soft); }
+
+.warning {
+  margin: 16px 0 0;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  text-align: center;
+}
+
+.main-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+/* ---------- 6. 결과 영역 ---------- */
+.result-header { text-align: center; margin-bottom: 20px; display: none; }
+.result.has-result .result-header { display: block; }
+.result-header h2 { font-size: 1.8rem; color: var(--primary-dark); }
+.result-header p { margin: 6px 0 0; color: var(--text-soft); }
+
+.empty-state { text-align: center; padding: 40px 0; color: var(--text-soft); }
+.result.has-result .empty-state { display: none; }
+.empty-icon { font-size: 3rem; display: block; margin-bottom: 8px; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  position: relative;
+  border-radius: 18px;
+  padding: 18px 14px 16px;
+  text-align: center;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.05);
+  animation: pop-in 0.45s cubic-bezier(.2, 1.4, .4, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.card.pink     { background: var(--pink); }
+.card.peach    { background: var(--peach); }
+.card.lemon    { background: var(--lemon); }
+.card.mint     { background: var(--mint); }
+.card.sky      { background: var(--sky); }
+.card.lavender { background: var(--lavender); }
+
+.card-no {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+.card-icon { font-size: 2.4rem; line-height: 1; }
+.card-role { font-family: var(--font-title); font-size: 1.25rem; }
+.card-name {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 4px 16px;
+  margin-top: 4px;
+}
+
+.print-footer { display: none; }
+
+/* ---------- 7. 알림(toast) ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translate(-50%, 20px);
+  background: #4a4458;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  max-width: calc(100% - 32px);
+  text-align: center;
+  z-index: 10;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 8. 애니메이션 ---------- */
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.6) rotate(-6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .logo { animation: none; }
+}
+
+/* ---------- 9. 모바일 ---------- */
+@media (max-width: 700px) {
+  .app-header h1 { font-size: 1.6rem; }
+  .lists { grid-template-columns: 1fr; }
+  textarea { height: 200px; }
+  .settings, .result { padding: 18px; }
+  .card-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .card-name { font-size: 1.35rem; }
+}
+
+/* =========================================================
+   10. A4 인쇄 (교실 게시판 부착용)
+   - 12명 기준 3열 × 4줄로 A4 한 장에 깔끔하게 들어갑니다.
+   ========================================================= */
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body { background: #fff !important; }
+
+  .no-print,
+  .toast { display: none !important; }
+
+  .container { max-width: none; padding: 0; display: block; }
+
+  .result {
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .result-header { display: block; margin-bottom: 6mm; }
+  .result-header h2 { font-size: 22pt; }
+  .result-header p { font-size: 11pt; }
+
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4mm;
+  }
+
+  .card {
+    animation: none;
+    box-shadow: none;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    min-height: 52mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .card-icon { font-size: 26pt; }
+  .card-role { font-size: 14pt; }
+  .card-name { font-size: 20pt; }
+  .card-no { font-size: 9pt; }
+
+  .print-footer {
+    display: block;
+    text-align: center;
+    margin-top: 6mm;
+    font-family: var(--font-title);
+    font-size: 12pt;
+    color: var(--text-soft);
+  }
+}

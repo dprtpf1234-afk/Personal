@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리 반 1인 1역할</title>
+
+  <!-- 귀여운 한글 폰트 (Jua: 제목용, Gowun Dodum: 본문용) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===================== 상단 헤더 ===================== -->
+  <header class="app-header no-print">
+    <div class="title-wrap">
+      <span class="logo" aria-hidden="true">🌈</span>
+      <div>
+        <h1>우리 반 1인 1역할</h1>
+        <p class="subtitle">모두가 한 가지씩, 함께 만드는 우리 교실</p>
+      </div>
+    </div>
+
+    <!-- 구글 스프레드시트 연동 버튼 (다음 단계에서 Apps Script와 연결) -->
+    <div class="sheet-actions">
+      <button id="btnLoadSheet" class="btn btn-sheet" type="button">🔄 시트 불러오기</button>
+      <button id="btnSaveSheet" class="btn btn-sheet" type="button">💾 시트에 결과 저장</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ===================== 설정 영역 ===================== -->
+    <section class="settings no-print" aria-label="명단 설정">
+      <div class="info-row">
+        <label class="field">
+          <span>🏫 학급 이름</span>
+          <input id="className" type="text" value="3학년 2반" maxlength="30">
+        </label>
+        <label class="field">
+          <span>📅 적용 기간</span>
+          <input id="period" type="text" placeholder="예: 10월 3주 ~ 11월 2주" maxlength="40">
+        </label>
+      </div>
+
+      <div class="lists">
+        <div class="list-box list-students">
+          <div class="list-head">
+            <h2>🧒 학생 명단</h2>
+            <span id="studentCount" class="badge">0명</span>
+          </div>
+          <textarea id="studentInput" spellcheck="false" aria-label="학생 명단"></textarea>
+          <p class="hint">한 줄에 한 명씩 적어 주세요.</p>
+        </div>
+
+        <div class="list-box list-roles">
+          <div class="list-head">
+            <h2>⭐ 학급 역할</h2>
+            <span id="roleCount" class="badge">0개</span>
+          </div>
+          <textarea id="roleInput" spellcheck="false" aria-label="학급 역할 목록"></textarea>
+          <p class="hint">한 줄에 역할 하나씩 적어 주세요.</p>
+        </div>
+      </div>
+
+      <p id="countWarning" class="warning" hidden></p>
+
+      <div class="main-actions">
+        <button id="btnAssign" class="btn btn-primary btn-big" type="button">🎲 역할 배정하기</button>
+        <button id="btnPrint" class="btn btn-secondary" type="button">🖨️ A4 인쇄하기</button>
+        <button id="btnReset" class="btn btn-ghost" type="button">↩️ 예시 데이터로</button>
+      </div>
+    </section>
+
+    <!-- ===================== 결과 영역 ===================== -->
+    <section id="resultSection" class="result" aria-label="역할 배정 결과">
+      <div class="result-header">
+        <h2 id="resultTitle">우리 반 1인 1역할</h2>
+        <p id="resultMeta"></p>
+      </div>
+
+      <div id="emptyState" class="empty-state no-print">
+        <span class="empty-icon" aria-hidden="true">🎁</span>
+        <p>아직 역할이 정해지지 않았어요.<br><strong>🎲 역할 배정하기</strong> 버튼을 눌러 보세요!</p>
+      </div>
+
+      <div id="cardGrid" class="card-grid"></div>
+
+      <p class="print-footer">서로 돕고 맡은 일을 끝까지! 💪</p>
+    </section>
+  </main>
+
+  <!-- 알림 메시지 -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

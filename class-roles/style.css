@@ -108,6 +108,10 @@ h1, h2 { font-family: var(--font-title); font-weight: 400; margin: 0; }
 
 .btn-big { font-size: 1.4rem; padding: 14px 34px; }
 
+/* ⚙️ 시트 주소 버튼 (연결되면 초록 테두리) */
+.btn-icon { padding: 8px 14px; }
+.btn-icon.is-connected { border-style: solid; border-color: var(--sheet-dark); }
+
 /* ---------- 4. 레이아웃 ---------- */
 .container {
   max-width: 1100px;

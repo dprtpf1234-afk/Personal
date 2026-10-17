@@ -15,10 +15,12 @@
 
 /* ---------- 1. 설정 / 기본 데이터 ---------- */
 const CONFIG = {
-  // 다음 단계: Apps Script 웹 앱 배포 URL을 여기에 붙여 넣으세요.
-  // 예) 'https://script.google.com/macros/s/XXXXXXXX/exec'
-  SHEET_API_URL: '',
+  // 시트 연결 주소(Apps Script 웹 앱 URL)는 코드에 적지 않고
+  // 앱의 ⚙️ 버튼으로 입력해 브라우저에만 저장합니다.
+  // (공개 저장소에 주소가 올라가 학생 명단이 노출되는 것을 막기 위해서예요.)
   STORAGE_KEY: 'classRoles.v1',
+  SHEET_URL_KEY: 'classRoles.sheetUrl',
+  SHEET_URL_PATTERN: /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec\/?$/,
 };
 
 const DEFAULT_STUDENTS = [
@@ -59,6 +61,7 @@ const els = {
   btnReset: $('btnReset'),
   btnLoadSheet: $('btnLoadSheet'),
   btnSaveSheet: $('btnSaveSheet'),
+  btnSheetUrl: $('btnSheetUrl'),
   resultSection: $('resultSection'),
   resultTitle: $('resultTitle'),
   resultMeta: $('resultMeta'),
@@ -213,13 +216,13 @@ function printResult() {
   window.print();
 }
 
-/* ---------- 7. 구글 스프레드시트 연동 (다음 단계) ----------
-   Apps Script 웹 앱과 주고받을 데이터 형식(약속):
+/* ---------- 7. 구글 스프레드시트 연동 ----------
+   Apps Script 코드: apps-script/Code.gs (설치 방법은 README 참고)
 
-   [불러오기]  GET  SHEET_API_URL?action=load
+   [불러오기]  GET  웹앱URL?action=load
      응답 → { "students": ["김민준", ...], "roles": ["칠판 지킴이", ...] }
 
-   [저장하기]  POST SHEET_API_URL
+   [저장하기]  POST 웹앱URL
      보내는 값 → {
        "action": "save",
        "className": "3학년 2반",
@@ -230,32 +233,110 @@ function printResult() {
 
    ※ Content-Type을 text/plain으로 보내면 Apps Script에서
      CORS 사전 요청(preflight) 문제 없이 받을 수 있어요.
-     (Apps Script 쪽에서는 JSON.parse(e.postData.contents)로 읽으면 됩니다.)
    ------------------------------------------------------------ */
-function isSheetReady() {
-  if (!CONFIG.SHEET_API_URL) {
-    showToast('🔧 시트 연결은 다음 단계에서 준비할게요!');
+function getSheetUrl() {
+  try {
+    return localStorage.getItem(CONFIG.SHEET_URL_KEY) || '';
+  } catch (err) {
+    return sheetUrlMemory;
+  }
+}
+
+let sheetUrlMemory = ''; // 브라우저 저장이 막힌 환경용
+
+function setSheetUrl(url) {
+  sheetUrlMemory = url;
+  try {
+    if (url) localStorage.setItem(CONFIG.SHEET_URL_KEY, url);
+    else localStorage.removeItem(CONFIG.SHEET_URL_KEY);
+  } catch (err) {
+    // 저장이 막힌 환경에서는 이번 접속 동안만 기억합니다.
+  }
+  updateSheetButtons();
+}
+
+// ⚙️ 버튼: 시트 연결 주소 입력/변경
+function askSheetUrl() {
+  const current = getSheetUrl();
+  const input = prompt(
+    '구글 Apps Script 웹 앱 주소를 붙여 넣어 주세요.\n' +
+    '(https://script.google.com/macros/s/…/exec 형태)\n\n' +
+    '비워 두고 확인을 누르면 연결이 해제돼요.',
+    current
+  );
+  if (input === null) return false; // 취소
+
+  const url = input.trim();
+  if (url === '') {
+    setSheetUrl('');
+    showToast('🔌 시트 연결을 해제했어요.');
     return false;
   }
+  if (!CONFIG.SHEET_URL_PATTERN.test(url)) {
+    showToast('🤔 주소 형식이 달라요. …/exec 로 끝나는 웹 앱 주소인지 확인해 주세요.');
+    return false;
+  }
+  setSheetUrl(url);
+  showToast('🔗 시트 주소를 저장했어요!');
   return true;
 }
 
+function updateSheetButtons() {
+  const connected = Boolean(getSheetUrl());
+  els.btnSheetUrl.title = connected ? '시트 연결 주소 변경' : '시트 연결 주소 설정';
+  els.btnSheetUrl.classList.toggle('is-connected', connected);
+}
+
+// 주소가 없으면 먼저 입력을 받습니다.
+function ensureSheetUrl() {
+  if (getSheetUrl()) return true;
+  return askSheetUrl();
+}
+
+// 응답을 JSON으로 읽고, 실패하면 이유를 알기 쉬운 말로 바꿔 줍니다.
+async function readSheetResponse(res) {
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    // 로그인 화면(HTML)이 오면 대부분 배포 권한 문제예요.
+    throw new Error('ACCESS');
+  }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+
+function sheetErrorMessage(err, action) {
+  if (err.message === 'ACCESS') {
+    return `😢 ${action}에 실패했어요. 배포할 때 액세스 권한을 '모든 사용자'로 했는지 확인해 주세요.`;
+  }
+  if (err instanceof TypeError) {
+    return `😢 ${action}에 실패했어요. 인터넷 연결과 ⚙️ 시트 주소를 확인해 주세요.`;
+  }
+  return `😢 ${action}에 실패했어요. (${err.message})`;
+}
+
 async function loadFromSheet() {
-  if (!isSheetReady()) return;
+  if (!ensureSheetUrl()) return;
   setBusy(els.btnLoadSheet, true, '⏳ 불러오는 중...');
   try {
-    const res = await fetch(`${CONFIG.SHEET_API_URL}?action=load`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const res = await fetch(`${getSheetUrl()}?action=load`);
+    const data = await readSheetResponse(res);
     if (!Array.isArray(data.students) || !Array.isArray(data.roles)) {
-      throw new Error('데이터 형식이 올바르지 않아요.');
+      throw new Error('데이터 형식이 올바르지 않아요');
+    }
+    if (data.students.length === 0 && data.roles.length === 0) {
+      showToast('📭 시트가 비어 있어요. \'명단\' 시트의 A열(학생), B열(역할)을 채워 주세요.');
+      return;
     }
     setLists(data.students, data.roles);
     saveLocal();
-    showToast('✅ 시트에서 명단을 불러왔어요!');
+    showToast(`✅ 시트에서 학생 ${data.students.length}명, 역할 ${data.roles.length}개를 불러왔어요!`);
   } catch (err) {
     console.error(err);
-    showToast('😢 시트를 불러오지 못했어요. 주소와 권한을 확인해 주세요.');
+    showToast(sheetErrorMessage(err, '불러오기'));
   } finally {
     setBusy(els.btnLoadSheet, false);
   }
@@ -266,28 +347,28 @@ async function saveToSheet() {
     showToast('먼저 🎲 역할 배정하기를 눌러 주세요!');
     return;
   }
-  if (!isSheetReady()) return;
+  if (!ensureSheetUrl()) return;
 
   const payload = {
     action: 'save',
     className: els.className.value.trim(),
     period: els.period.value.trim(),
-    createdAt: state.createdAt.toISOString(),
+    createdAt: (state.createdAt || new Date()).toISOString(),
     assignments: state.assignments,
   };
 
   setBusy(els.btnSaveSheet, true, '⏳ 저장 중...');
   try {
-    const res = await fetch(CONFIG.SHEET_API_URL, {
+    const res = await fetch(getSheetUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    showToast('✅ 시트에 결과를 저장했어요!');
+    await readSheetResponse(res);
+    showToast('✅ 시트의 \'배정결과\'에 저장했어요!');
   } catch (err) {
     console.error(err);
-    showToast('😢 저장하지 못했어요. 주소와 권한을 확인해 주세요.');
+    showToast(sheetErrorMessage(err, '저장'));
   } finally {
     setBusy(els.btnSaveSheet, false);
   }
@@ -370,6 +451,8 @@ function init() {
   els.btnReset.addEventListener('click', resetToDefault);
   els.btnLoadSheet.addEventListener('click', loadFromSheet);
   els.btnSaveSheet.addEventListener('click', saveToSheet);
+  els.btnSheetUrl.addEventListener('click', askSheetUrl);
+  updateSheetButtons();
 
   [els.studentInput, els.roleInput].forEach((input) => {
     input.addEventListener('input', () => { updateCounts(); saveLocal(); });
